@@ -1,0 +1,20 @@
+<package>
+  <name>ras_lab1_controllers</name>
+  <version>0.1.0</version>
+  <description>
+    Packages for lab1_controllers.
+  </description>
+  <license>BSD</license>
+
+  <url>http://wiki.ros.org/ras_lab1</url>
+
+  <maintainer email="mathlin@kth.se">Mathias Lindblom</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>std_msgs</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
