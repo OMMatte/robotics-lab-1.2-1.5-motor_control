@@ -6,7 +6,7 @@
 
 #define PI 3.14159265
 
-const float ALPHA = 1.0;
+const float ALPHA = 1;
 const float BIAS = 0.23;
 const float WHEEL_RADIUS = 0.0352;
 
@@ -26,8 +26,8 @@ public:
         old_pwr_right = 0;
         linear_velocity_ = 0;
         angular_velocity_ = 0;
-        wheel_encoder_left_ = 0;
-        wheel_encoder_right_ = 0;
+        wheel_encoder_delta_left_ = 0;
+        wheel_encoder_delta_right_ = 0;
         desired_w_left_ = 0;
         desired_w_right_ = 0;
 
@@ -48,15 +48,24 @@ public:
             desired_w_left_ = getWheelAngularVelocity(linear_velocity_, angular_velocity_, true);
             desired_w_right_ = getWheelAngularVelocity(linear_velocity_, angular_velocity_, false);
 
+            ROS_INFO("desired_w_left is %f", desired_w_left_);
+            ROS_INFO("message_w_right is %f", desired_w_right_);
+
         }
 
     void encoderCallback(const ras_arduino_msgs::Encoders::ConstPtr &msg)
     {
-        wheel_encoder_left_ =  msg->delta_encoder1;
-        wheel_encoder_right_ = msg->delta_encoder2;
+        wheel_encoder_delta_left_ =  msg->delta_encoder1;
+        wheel_encoder_delta_right_ = msg->delta_encoder2;
 
-        estimated_w_left_ = wheel_encoder_left_*(180 / M_PI) * 10;
-        estimated_w_right_ = wheel_encoder_right_*(180 / M_PI) * 10;
+        ROS_INFO("wheel_encoder_delta_left is %i", wheel_encoder_delta_left_);
+        ROS_INFO("wheel_encoder_delta_right is %i", wheel_encoder_delta_right_);
+
+        estimated_w_left_ = wheel_encoder_delta_left_*(M_PI / 180) * 10;
+        estimated_w_right_ = wheel_encoder_delta_right_*(M_PI / 180) * 10;
+
+        ROS_INFO("estimated_w_left_ is %f", estimated_w_left_);
+        ROS_INFO("estimated_w_right is %f", estimated_w_right_);
     }
 
     void update()
@@ -64,8 +73,13 @@ public:
 
         ras_arduino_msgs::PWM pwm;
 
-        pwm.PWM1 = old_pwr_left_ + ALPHA*(desired_w_left_ - estimated_w_left_);
-        pwm.PWM2 = old_pwr_right + ALPHA*(desired_w_right_ - estimated_w_right_);
+        pwm.PWM1 = old_pwr_left_ + 0.5 + ALPHA*(desired_w_left_ - estimated_w_left_);
+        pwm.PWM2 = old_pwr_right + 0.5 + ALPHA*(desired_w_right_ - estimated_w_right_);
+
+        ROS_INFO("old_pwr_left is %i", old_pwr_left_);
+        ROS_INFO("old_pwr_right is %i", old_pwr_right);
+        ROS_INFO("new_pwr_left is %i", pwm.PWM1);
+        ROS_INFO("new_pwr_right is %i", pwm.PWM2);
 
         old_pwr_left_ = pwm.PWM1;
         old_pwr_right = pwm.PWM2;
@@ -78,8 +92,8 @@ private:
     int old_pwr_left_;
     int old_pwr_right;
 
-    float wheel_encoder_left_;
-    float wheel_encoder_right_;
+    int wheel_encoder_delta_left_;
+    int wheel_encoder_delta_right_;
 
     float linear_velocity_;
     float angular_velocity_;

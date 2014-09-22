@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ommatte/catkin_ws/src/ras_lab1_controllers/ras_lab1_open_loop_control/src/open_loop_controller.cpp
+ros/ros.h
+/home/ommatte/catkin_ws/src/ras_lab1_controllers/ras_lab1_open_loop_control/src/ros/ros.h
+ras_arduino_msgs/PWM.h
+/home/ommatte/catkin_ws/src/ras_lab1_controllers/ras_lab1_open_loop_control/src/ras_arduino_msgs/PWM.h
+

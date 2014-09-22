@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ommatte/catkin_ws/src/ras_lab1_controllers/ras_lab1_cartesian_controllers/build/devel/setup.sh
