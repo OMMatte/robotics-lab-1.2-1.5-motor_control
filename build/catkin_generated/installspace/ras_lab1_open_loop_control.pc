@@ -1,8 +1,0 @@
-prefix=/usr/local
-
-Name: ras_lab1_open_loop_control
-Description: Description of ras_lab1_open_loop_control
-Version: 0.1.0
-Cflags: 
-Libs: -L/usr/local/lib 
-Requires: 
