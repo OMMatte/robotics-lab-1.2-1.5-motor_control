@@ -48,13 +48,8 @@ public:
 
         ras_arduino_msgs::PWM pwm;
 
-        pwm.PWM1 = old_pwr_left + 0.5 + ALPHA*(desired_w_left - estimated_w_left);
-        pwm.PWM2 = old_pwr_right + 0.5 + ALPHA*(desired_w_right - estimated_w_right);
-
-        ROS_INFO("old_pwr_left is %i", old_pwr_left);
-        ROS_INFO("old_pwr_right is %i", old_pwr_right);
-        ROS_INFO("new_pwr_left is %i", pwm.PWM1);
-        ROS_INFO("new_pwr_right is %i", pwm.PWM2);
+        pwm.PWM1 = (int) (old_pwr_left + 0.5 + ALPHA*(desired_w_left - estimated_w_left));
+        pwm.PWM2 = (int) (old_pwr_right + 0.5 + ALPHA*(desired_w_right - estimated_w_right));
 
         old_pwr_left = pwm.PWM1;
         old_pwr_right = pwm.PWM2;
