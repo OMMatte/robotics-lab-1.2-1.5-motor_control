@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="0.0"?>
 <package>
   <name>ras_lab1_open_loop_control</name>
   <version>0.1.0</version>
@@ -10,9 +10,12 @@
 
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>ras_arduino_msgs</build_depend>>
 
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>ras_arduino_msgs</run_depend>
+
 
 </package>
 
