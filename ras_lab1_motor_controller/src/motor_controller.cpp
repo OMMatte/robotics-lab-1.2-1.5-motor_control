@@ -10,8 +10,9 @@ const float ALPHA = 1;
 const float RELATIVE_PWR_FIXER_MOD = 0.001;
 const float BIAS = 0.23;
 const float WHEEL_RADIUS = 0.0352;
+
+const int MAX_INPUT_TIME_MS = 2000; //2000 = 2 seconds
 const int MAX_POWER = 255;
-const float EPSILON = 0.000001;
 
 bool INFO = true;
 
@@ -41,6 +42,7 @@ public:
 
     void cartesianCallback(const geometry_msgs::Twist::ConstPtr &msg)
     {
+        last_input_time = ros::Time::now();
         setDesiredAngularVelocity(msg->linear.x, msg->angular.z);
     }
 
@@ -51,12 +53,14 @@ public:
 
     void update()
     {
+        if(MAX_INPUT_TIME_MS > 0 || (ros::Time::now() - last_input_time).toSec() > (MAX_INPUT_TIME_MS / 1000.0)) {
+            return;
+        }
+
         ras_arduino_msgs::PWM pwm;
 
         float pwm1 = relative_pwr_fixer*(old_pwr_left + ALPHA*(desired_w_left - estimated_w_left));
         float pwm2 = (old_pwr_right + ALPHA*(desired_w_right - estimated_w_right));
-
-
 
         {
             float pwm1_abs = std::abs(pwm1);
@@ -114,6 +118,8 @@ private:
     float desired_w_right;
     float estimated_w_left;
     float estimated_w_right;
+
+    ros::Time last_input_time;
 
     ros::Subscriber car_sub;
     ros::Subscriber enc_sub;
