@@ -1,9 +1,11 @@
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
+#include <ros/ros.h>
+#include <geometry_msgs/Twist.h>
+
+const float PI =  3.14159265;
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "line_cartesian_controller");
+  ros::init(argc, argv, "circle_cartesian_controller");
 
   ros::NodeHandle n;
 
@@ -14,9 +16,11 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
 
+    float angularSpeed = 2.0 * PI / 10;
+    float linearSpeed = 0.5 * angularSpeed;
     geometry_msgs::Twist msg;
-    msg.linear.x = 0.2;
-    msg.angular.z = 0.0;
+    msg.linear.x = linearSpeed;
+    msg.angular.z = angularSpeed;
 
     pwm_pub.publish(msg);
 
