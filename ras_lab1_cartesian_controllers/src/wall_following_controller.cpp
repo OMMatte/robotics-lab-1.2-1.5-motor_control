@@ -3,7 +3,7 @@
 #include <geometry_msgs/Twist.h>
 
 const float PI =  3.14159265;
-const float LINEAR_VELOCITY = 0.1;
+const float LINEAR_VELOCITY = 0.5;
 const float ALPHA = 0.01;
 const int HZ = 10;
 

@@ -7,8 +7,13 @@
 
 const float PI =  3.14159265;
 const float ALPHA = 1;
+const float RELATIVE_PWR_FIXER_MOD = 0.001;
 const float BIAS = 0.23;
 const float WHEEL_RADIUS = 0.0352;
+const int MAX_POWER = 255;
+const float EPSILON = 0.000001;
+
+bool INFO = true;
 
 
 class MotorControllerNode
@@ -23,7 +28,8 @@ public:
         desired_w_left(0),
         desired_w_right(0),
         estimated_w_left(0),
-        estimated_w_right(0)
+        estimated_w_right(0),
+        relative_pwr_fixer(1.0)
     {
         n = ros::NodeHandle();
 
@@ -45,22 +51,64 @@ public:
 
     void update()
     {
-
         ras_arduino_msgs::PWM pwm;
 
-        pwm.PWM1 = (int) (old_pwr_left + 0.5 + ALPHA*(desired_w_left - estimated_w_left));
-        pwm.PWM2 = (int) (old_pwr_right + 0.5 + ALPHA*(desired_w_right - estimated_w_right));
+        float pwm1 = relative_pwr_fixer*(old_pwr_left + ALPHA*(desired_w_left - estimated_w_left));
+        float pwm2 = (old_pwr_right + ALPHA*(desired_w_right - estimated_w_right));
 
-        old_pwr_left = pwm.PWM1;
-        old_pwr_right = pwm.PWM2;
+
+
+        {
+            float pwm1_abs = std::abs(pwm1);
+            float pwm2_abs = std::abs(pwm2);
+
+            float max_pwm = std::max(pwm1_abs, pwm2_abs);
+
+            if(max_pwm > MAX_POWER) {
+                // The power is to strong (forward or backwards) for some or both engines. Scale it down and hope it still runs ok
+                // Meaning estimated can never reach desired power
+                float scale_percent = (float)MAX_POWER / max_pwm;
+
+                pwm1 = pwm1 * scale_percent;
+                pwm2 = pwm2 * scale_percent;
+
+                if(estimated_w_left / desired_w_left > estimated_w_right / desired_w_right) {
+                    relative_pwr_fixer -= RELATIVE_PWR_FIXER_MOD;
+                } else {
+                    relative_pwr_fixer += RELATIVE_PWR_FIXER_MOD;
+                }
+            }
+            else {
+                relative_pwr_fixer = 1.0;
+            }
+        }
+
+
+
+        old_pwr_left = pwm1;
+        old_pwr_right = pwm2;
+
+        pwm.PWM1 = (int)old_pwr_left + 0.5;
+        pwm.PWM2 = (int)old_pwr_right + 0.5;
 
         pwm_pub.publish(pwm);
 
+        if(INFO) {
+            ROS_INFO("PWM1: %f", old_pwr_left);
+            ROS_INFO("PWM2: %f", old_pwr_right);
+            ROS_INFO("Desired1: %f", desired_w_left);
+            ROS_INFO("Desired2: %f", desired_w_right);
+            ROS_INFO("Estimated1: %f", estimated_w_left);
+            ROS_INFO("Estimated2: %f", estimated_w_right);
+            ROS_INFO("Relative_pwr_fixer %f", relative_pwr_fixer);
+        }
     }
 
 private:
-    int old_pwr_left;
-    int old_pwr_right;
+    float relative_pwr_fixer;
+
+    float old_pwr_left;
+    float old_pwr_right;
 
     float desired_w_left;
     float desired_w_right;
@@ -71,16 +119,16 @@ private:
     ros::Subscriber enc_sub;
     ros::Publisher pwm_pub;
 
-    void setDesiredAngularVelocity(float velocity, float angularVelocity) {
+    void setDesiredAngularVelocity(float velocity, float angular_velocity) {
         float tempFirstCalculation = velocity / WHEEL_RADIUS;
-        float tempSecondCalculation = (BIAS/2) * angularVelocity / WHEEL_RADIUS;
+        float tempSecondCalculation = (BIAS/2) * angular_velocity / WHEEL_RADIUS;
 
         desired_w_left = tempFirstCalculation - tempSecondCalculation;
         desired_w_right = tempFirstCalculation + tempSecondCalculation;
     }
 
     void setEstimatedAngularVelocity(int deltaLeft, int deltaRight) {
-        float tempCalculation = (M_PI / 180.0) * 10;
+        float tempCalculation = (M_PI / 180.0) * 10.0;
         estimated_w_left = deltaLeft * tempCalculation;
         estimated_w_right = deltaRight * tempCalculation;
     }
