@@ -15,7 +15,7 @@ int main(int argc, char **argv)
   {
 
     geometry_msgs::Twist msg;
-    msg.linear.x = 1.0;
+    msg.linear.x = 0.5;
     msg.angular.z = 0.0;
 
     pwm_pub.publish(msg);
