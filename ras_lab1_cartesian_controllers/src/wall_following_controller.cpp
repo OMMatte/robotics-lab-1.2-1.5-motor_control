@@ -3,8 +3,11 @@
 #include <geometry_msgs/Twist.h>
 
 const float PI =  3.14159265;
+
 const float LINEAR_VELOCITY = 0.3;
 const float ALPHA = 0.005;
+const float DISTANCE_TO_WALL = 5.0;
+
 const int HZ = 10;
 
 class WallFollowingController {
